@@ -81,6 +81,11 @@
                                            (list (first stack))
                                            (list (second stack))
                                            (rest (rest (rest stack))))))
+    (hash-set! dictionary 'JUMPIF
+               (lambda (instruction-idx stack)
+                 (if (forth-true? (first stack))
+                   (list (second stack) (rest (rest stack)))
+                   (list (+ instruction-idx 1) (rest (rest stack))))))
     dictionary))
 
 (define (forth-eval program initial-stack)
