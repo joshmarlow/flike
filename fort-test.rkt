@@ -11,10 +11,10 @@
     (test-case
       "Test inserting numbers on the stack"
       (let ((initial-stack '())
-            (program '(1 2)))
+            (program '(5 6)))
         (check-equal?
           (forth-eval program initial-stack)
-          '(1 2))))
+          '(5 6))))
     (test-case
       "Test DUP"
       (let ((initial-stack '())
