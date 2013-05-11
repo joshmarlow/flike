@@ -82,17 +82,22 @@
     "Test flow control operations"
 
     (test-case
-      "Test JUMP"
+      "Test JUMPIF"
       ;; NOTE: this deviates quite a bit from standard forth and
       ;; is much more assembly like.  The program should
       ;; consult the top of the stack, and if true, jump to
       ;; instruction IDX where IDX is the second value on the stack.
-      (let ((initial-stack '(2 -1))
-            (program '(JUMP DUP 5)))
+      (let ((initial-stack '(3 2 -1))
+            (program '(JUMPIF DUP 5)))
         (check-equal?
           (forth-eval program initial-stack)
-          '(5)
-          "Testing JUMP program")))))
+          '(3 5)
+          "Testing JUMPIF program"))
+      (let ((initial-stack '(3 2 0))
+            (program '(JUMPIF DUP 5)))
+        (check-equal?
+          (forth-eval program initial-stack)
+          '(3 3 5))))))
 
 (define boolean-tests
   (test-suite
