@@ -108,7 +108,7 @@
 
     (if (or (>= instruction-idx (length program))
             (>= step-count max-steps))
-      stack
+      (list step-count stack)
       (let* ((exec-output (exec-word))
              (new-instruction-idx (first exec-output))
              (new-stack (second exec-output)))
@@ -117,4 +117,7 @@
   ;; NOTE: we reverse the stack so that we can use the traditional
   ;; flike notation of the right-most element being the 'TOP' of the
   ;; stack.
-  (reverse (flike-eval-helper program 0 (reverse initial-stack) 0 max-steps)))
+  (let* ((result (flike-eval-helper program 0 (reverse initial-stack) 0 max-steps))
+         (step-count (first result))
+         (stack (second result)))
+    (list step-count (reverse stack))))
