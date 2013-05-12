@@ -1,6 +1,7 @@
 #lang racket
 
 (provide flike-eval)
+(provide build-initial-dictionary)
 
 (define (flike-true? val)
   (not (equal? val 0)))
@@ -60,6 +61,16 @@
                                             (rest (rest stack)))))
     (define-linear-operator 'DROP (lambda (stack)
                                     (rest stack)))
+    (define-linear-operator 'ROT (lambda (stack)
+                                   (append (list (third stack))
+                                           (list (first stack))
+                                           (list (second stack))
+                                           (rest (rest (rest stack))))))
+    (hash-set! dictionary 'JUMPIF
+               (lambda (instruction-idx stack)
+                 (if (flike-true? (first stack))
+                   (list (second stack) (rest (rest stack)))
+                   (list (+ instruction-idx 1) (rest (rest stack))))))
     (define-linear-operator '+ (lambda (stack)
                                  (append
                                    (list (+ (second stack) (first stack)))
@@ -76,16 +87,6 @@
                                  (append
                                    (list (/ (second stack) (first stack)))
                                    (rest (rest stack)))))
-    (define-linear-operator 'ROT (lambda (stack)
-                                   (append (list (third stack))
-                                           (list (first stack))
-                                           (list (second stack))
-                                           (rest (rest (rest stack))))))
-    (hash-set! dictionary 'JUMPIF
-               (lambda (instruction-idx stack)
-                 (if (flike-true? (first stack))
-                   (list (second stack) (rest (rest stack)))
-                   (list (+ instruction-idx 1) (rest (rest stack))))))
     dictionary))
 
 (define (flike-eval program initial-stack max-steps)
