@@ -88,11 +88,11 @@
                    (list (+ instruction-idx 1) (rest (rest stack))))))
     dictionary))
 
-(define (flike-eval program initial-stack)
+(define (flike-eval program initial-stack max-steps)
 
   (define dictionary (build-initial-dictionary))
 
-  (define (flike-eval-helper program instruction-idx stack)
+  (define (flike-eval-helper program instruction-idx stack step-count max-steps)
     ;; Recursively evaluate the program.  Each word sets
     ;; the next instruction, which opens the possibility to
     ;; loops and branches.
@@ -106,14 +106,15 @@
           ((integer? input) (list (+ instruction-idx 1) (append (list input) stack)))
           (error (string-append "Unknown word " (symbol->string input))))))
 
-    (if (>= instruction-idx (length program))
+    (if (or (>= instruction-idx (length program))
+            (>= step-count max-steps))
       stack
       (let* ((exec-output (exec-word))
              (new-instruction-idx (first exec-output))
              (new-stack (second exec-output)))
-        (flike-eval-helper program new-instruction-idx new-stack))))
+        (flike-eval-helper program new-instruction-idx new-stack (+ step-count 1) max-steps))))
 
   ;; NOTE: we reverse the stack so that we can use the traditional
   ;; flike notation of the right-most element being the 'TOP' of the
   ;; stack.
-  (reverse (flike-eval-helper program 0 (reverse initial-stack))))
+  (reverse (flike-eval-helper program 0 (reverse initial-stack) 0 max-steps)))
