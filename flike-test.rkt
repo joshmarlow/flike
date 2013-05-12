@@ -2,7 +2,7 @@
 
 (require rackunit
          rackunit/text-ui
-         "forth.rkt")
+         "flike.rkt")
 
 (define stack-manipulations
   (test-suite
@@ -13,35 +13,35 @@
       (let ((initial-stack '())
             (program '(5 6)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(5 6))))
     (test-case
       "Test DUP"
       (let ((initial-stack '())
             (program '(1 DUP)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(1 1))))
     (test-case
       "Test SWAP"
       (let ((initial-stack '())
             (program '(1 2 SWAP)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(2 1))))
     (test-case
       "Test DROP"
       (let ((initial-stack '())
             (program '(1 2 DROP)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(1))))
     (test-case
       "Test ROT"
       (let ((initial-stack '())
             (program '(0 1 2 3 ROT)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(0 2 3 1))))))
 
 (define integer-math-operations
@@ -53,28 +53,28 @@
       (let ((initial-stack '())
             (program '(0 7 3 +)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(0 10))))
     (test-case
       "Test -"
       (let ((initial-stack '())
             (program '(0 7 3 -)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(0 4))))
     (test-case
       "Test *"
       (let ((initial-stack '())
             (program '(0 7 3 *)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(0 21))))
     (test-case
       "Test /"
       (let ((initial-stack '())
             (program '(0 10 2 /)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(0 5))))))
 
 (define flow-control
@@ -83,20 +83,20 @@
 
     (test-case
       "Test JUMPIF"
-      ;; NOTE: this deviates quite a bit from standard forth and
+      ;; NOTE: this deviates quite a bit from standard flike and
       ;; is much more assembly like.  The program should
       ;; consult the top of the stack, and if true, jump to
       ;; instruction IDX where IDX is the second value on the stack.
       (let ((initial-stack '(3 2 -1))
             (program '(JUMPIF DUP 5)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(3 5)
           "Testing JUMPIF program"))
       (let ((initial-stack '(3 2 0))
             (program '(JUMPIF DUP 5)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(3 3 5))))))
 
 (define boolean-tests
@@ -108,13 +108,13 @@
       (let ((initial-stack '(0))
             (program '(=0)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(-1)
           "0 =0"))
       (let ((initial-stack '(1))
             (program '(=0)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(0)
           "1 =0")))
 
@@ -123,13 +123,13 @@
       (let ((initial-stack '(1))
             (program '(>0)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(-1)
           "1 >0"))
       (let ((initial-stack '(-1))
             (program '(>0)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(0)
           "-1 >0")))
 
@@ -138,13 +138,13 @@
       (let ((initial-stack '(1))
             (program '(<0)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(0)
           "Testing 1 <0"))
       (let ((initial-stack '(-1))
             (program '(<0)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(-1)
           "Testing -1 <0")))
 
@@ -153,13 +153,13 @@
       (let ((initial-stack '(0 1))
             (program '(>)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(0)
           "Testing 0 1 >"))
       (let ((initial-stack '(1 0))
             (program '(>)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(-1)
           "Testing 1 0 >")))
 
@@ -168,13 +168,13 @@
       (let ((initial-stack '(0 1))
             (program '(<)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(-1)
           "Testing 0 1 <"))
       (let ((initial-stack '(1 0))
             (program '(<)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(0)
           "Testing 1 0 <")))
 
@@ -184,28 +184,28 @@
       (let ((initial-stack '(0 0))
             (program '(AND)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(0)
           "Testing 0 0 AND"))
       ;; Test 0 1 AND
       (let ((initial-stack '(0 -1))
             (program '(AND)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(0)
           "Testing 0 -1 AND"))
       ;; Test 1 0 AND
       (let ((initial-stack '(-1 0))
             (program '(AND)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(0)
           "Testing -1 0 AND"))
       ;; Test 1 1 AND
       (let ((initial-stack '(-1 -1))
             (program '(AND)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(-1)
           "Testing -1 -1 AND")))
 
@@ -215,28 +215,28 @@
       (let ((initial-stack '(0 0))
             (program '(OR)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(0)
           "Testing 0 0 OR"))
       ;; Test 0 1 OR
       (let ((initial-stack '(0 -1))
             (program '(OR)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(-1)
           "Testing 0 1 OR"))
       ;; Test 1 0 OR
       (let ((initial-stack '(-1 0))
             (program '(OR)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(-1)
           "Testing 1 0 OR"))
       ;; Test 1 1 OR
       (let ((initial-stack '(-1 -1))
             (program '(OR)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(-1)
           "Testing 1 1 OR")))
 
@@ -246,13 +246,13 @@
       (let ((initial-stack '(0))
             (program '(INVERT)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(-1)))
       ;; Test INVERT is false (0) if the first stack value is true (-1).
       (let ((initial-stack '(-1))
             (program '(INVERT)))
         (check-equal?
-          (forth-eval program initial-stack)
+          (flike-eval program initial-stack)
           '(0))))))
 
 (run-tests stack-manipulations 'verbose)

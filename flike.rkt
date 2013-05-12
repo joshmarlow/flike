@@ -1,13 +1,13 @@
 #lang racket
 
-(provide forth-eval)
+(provide flike-eval)
 
-(define (forth-true? val)
+(define (flike-true? val)
   (not (equal? val 0)))
 (define (false? val)
   (equal? val 0))
-(define (bool->forth-bool val)
-  ;; convert a racket boolean to a forth boolean
+(define (bool->flike-bool val)
+  ;; convert a racket boolean to a flike boolean
   (if val -1 0))
 
 (define (build-initial-dictionary)
@@ -25,32 +25,32 @@
                                         (#t (cons 0 (rest stack))))))
     (define-linear-operator 'OR (lambda (stack)
                                   (cons
-                                    (if (or (forth-true? (first stack))
-                                            (forth-true? (second stack)))
+                                    (if (or (flike-true? (first stack))
+                                            (flike-true? (second stack)))
                                       -1
                                       0)
                                     (rest (rest stack)))))
     (define-linear-operator 'AND (lambda (stack)
                                    (cons
-                                     (if (and (forth-true? (first stack))
-                                              (forth-true? (second stack)))
+                                     (if (and (flike-true? (first stack))
+                                              (flike-true? (second stack)))
                                        -1
                                        0)
                                      (rest (rest stack)))))
     (define-linear-operator '=0 (lambda (stack)
-                                  (cons (bool->forth-bool (equal? (first stack) 0))
+                                  (cons (bool->flike-bool (equal? (first stack) 0))
                                         (rest stack))))
     (define-linear-operator '<0 (lambda (stack)
-                                  (cons (bool->forth-bool (< (first stack) 0))
+                                  (cons (bool->flike-bool (< (first stack) 0))
                                         (rest stack))))
     (define-linear-operator '>0 (lambda (stack)
-                                  (cons (bool->forth-bool (> (first stack) 0))
+                                  (cons (bool->flike-bool (> (first stack) 0))
                                         (rest stack))))
     (define-linear-operator '< (lambda (stack)
-                                 (cons (bool->forth-bool (< (second stack) (first stack)))
+                                 (cons (bool->flike-bool (< (second stack) (first stack)))
                                        (rest (rest stack)))))
     (define-linear-operator '> (lambda (stack)
-                                 (cons (bool->forth-bool (> (second stack) (first stack)))
+                                 (cons (bool->flike-bool (> (second stack) (first stack)))
                                        (rest (rest stack)))))
     (define-linear-operator 'DUP (lambda (stack)
                                    (cons (first stack) stack)))
@@ -83,16 +83,16 @@
                                            (rest (rest (rest stack))))))
     (hash-set! dictionary 'JUMPIF
                (lambda (instruction-idx stack)
-                 (if (forth-true? (first stack))
+                 (if (flike-true? (first stack))
                    (list (second stack) (rest (rest stack)))
                    (list (+ instruction-idx 1) (rest (rest stack))))))
     dictionary))
 
-(define (forth-eval program initial-stack)
+(define (flike-eval program initial-stack)
 
   (define dictionary (build-initial-dictionary))
 
-  (define (forth-eval-helper program instruction-idx stack)
+  (define (flike-eval-helper program instruction-idx stack)
     ;; Recursively evaluate the program.  Each word sets
     ;; the next instruction, which opens the possibility to
     ;; loops and branches.
@@ -111,9 +111,9 @@
       (let* ((exec-output (exec-word))
              (new-instruction-idx (first exec-output))
              (new-stack (second exec-output)))
-        (forth-eval-helper program new-instruction-idx new-stack))))
+        (flike-eval-helper program new-instruction-idx new-stack))))
 
   ;; NOTE: we reverse the stack so that we can use the traditional
-  ;; FORTH notation of the right-most element being the 'TOP' of the
+  ;; flike notation of the right-most element being the 'TOP' of the
   ;; stack.
-  (reverse (forth-eval-helper program 0 (reverse initial-stack))))
+  (reverse (flike-eval-helper program 0 (reverse initial-stack))))
