@@ -121,4 +121,5 @@
   (let* ((result (flike-eval-helper program 0 (reverse initial-stack) 0 max-steps))
          (step-count (first result))
          (stack (second result)))
-    (list step-count (reverse stack))))
+    (list (list 'step-count step-count)
+          (list 'param-stack (reverse stack)))))
