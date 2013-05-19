@@ -109,7 +109,10 @@
 
     (if (or (>= instruction-idx (length program))
             (>= step-count max-steps))
-      (list step-count stack)
+      ;; Return an association list containing various meta-info
+      ;; about this evaluation.
+      (list (list 'step-count step-count)
+            (list 'param-stack stack))
       (let* ((exec-output (exec-word))
              (new-instruction-idx (first exec-output))
              (new-stack (second exec-output)))
@@ -118,8 +121,11 @@
   ;; NOTE: we reverse the stack so that we can use the traditional
   ;; flike notation of the right-most element being the 'TOP' of the
   ;; stack.
-  (let* ((result (flike-eval-helper program 0 (reverse initial-stack) 0 max-steps))
-         (step-count (first result))
-         (stack (second result)))
-    (list (list 'step-count step-count)
-          (list 'param-stack (reverse stack)))))
+  (let ((result-alist (flike-eval-helper program 0 (reverse initial-stack) 0 max-steps)))
+    ;; reverse the parameter stack, but return the rest of the pairs without
+    ;; modification.
+    (map (lambda (pair)
+           (if (equal? (first pair) 'param-stack)
+             (list 'param-stack (reverse (second pair)))
+             pair))
+         result-alist)))
