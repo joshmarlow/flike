@@ -112,7 +112,8 @@
       ;; and stores various meta information.
       (list (list 'step-count step-count)
             (list 'param-stack stack)
-            (list 'termination-type termination-type)))
+            (list 'termination-type termination-type)
+            (list 'primary-segment program)))
 
     ;; Main execution loop; handles returning under various circumstances
     (cond
