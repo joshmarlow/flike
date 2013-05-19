@@ -107,20 +107,44 @@
           ((integer? input) (list (+ instruction-idx 1) (append (list input) stack)))
           (error (string-append "Unknown word " (symbol->string input))))))
 
-    (if (or (>= instruction-idx (length program))
-            (>= step-count max-steps))
-      ;; Return an association list containing various meta-info
-      ;; about this evaluation.
+    (define (build-state-assoc-list termination-type)
+      ;; Build the association list that summarizes this computation
+      ;; and stores various meta information.
       (list (list 'step-count step-count)
-            (list 'param-stack stack))
-      (let* ((exec-output (exec-word))
-             (new-instruction-idx (first exec-output))
-             (new-stack (second exec-output)))
-        (flike-eval-helper program new-instruction-idx new-stack (+ step-count 1) max-steps))))
+            (list 'param-stack stack)
+            (list 'termination-type termination-type)))
+
+    ;; Main execution loop; handles returning under various circumstances
+    (cond
+      ;; Program halted on it's own
+      ((>= instruction-idx (length program))
+       (build-state-assoc-list 'halt))
+      ;; Program exceeded allocated time and is being paused
+      ((>= step-count max-steps)
+       (build-state-assoc-list 'time-exceeded))
+      ;; There some code to go, so execute it and return if there
+      ;; is an error.
+      (#t (with-handlers (
+                          ;; Handle divide by zero
+                          [exn:fail:contract:divide-by-zero?
+                            (lambda(exn)
+                              (build-state-assoc-list 'exception))]
+                          ;; Handle underflows
+                          [exn:fail:contract?
+                            (lambda(exn)
+                              (build-state-assoc-list 'exception))])
+                         (let* ((exec-output (exec-word))
+                                (new-instruction-idx (first exec-output))
+                                (new-stack (second exec-output)))
+                           (flike-eval-helper program
+                                              new-instruction-idx
+                                              new-stack
+                                              (+ step-count 1)
+                                              max-steps))))))
 
   ;; NOTE: we reverse the stack so that we can use the traditional
-  ;; flike notation of the right-most element being the 'TOP' of the
-  ;; stack.
+  ;; forth notation of the right-most element being the 'TOP' of the
+  ;; stack, but it's easier to parse if the list is reversed.
   (let ((result-alist (flike-eval-helper program 0 (reverse initial-stack) 0 max-steps)))
     ;; reverse the parameter stack, but return the rest of the pairs without
     ;; modification.

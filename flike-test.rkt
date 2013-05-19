@@ -285,9 +285,9 @@
           (second (assoc 'param-stack result))
           '(0))))))
 
-(define misc-tests
+(define computation-state
   (test-suite
-    "Miscellaneous tests"
+    "Tests various bits of the computation state returned by flike-eval"
 
     (test-case
       "Test the program execution stops after the specified number of instructions"
@@ -296,13 +296,54 @@
              (program '(1 2 3 4 DUP DUP DUP))
              (result (flike-eval program initial-stack 4)))
         (check-equal?
-          result
-          '((step-count 4)
-            (param-stack (1 2 3 4)))
-          "Max-steps not honored as expected")))))
+          (assoc 'step-count result)
+          '(step-count 4)
+          "Max-steps not honored as expected")
+        (check-equal?
+          (assoc 'param-stack result)
+          '(param-stack (1 2 3 4))
+          "Param stack not constructed as expected")
+        (check-equal?
+          (assoc 'termination-type result)
+          '(termination-type time-exceeded)
+          "Termination type should be 'time-exceeded'")))
+
+    (test-case
+      "Test that a program that halts in the provided timeframe returns the 'halt' as the termination type"
+      (let* ((max-steps 4)
+             (initial-stack '())
+             (program '(1 2 3 + *))
+             (result (flike-eval program initial-stack 10)))
+        (check-equal?
+          (assoc 'termination-type result)
+          '(termination-type halt)
+          "Termination type should be 'halt'")))
+
+    (test-case
+      "Test that a program that generates a divide by zero error halts with 'exception' termination type"
+      (let* ((max-steps 4)
+             (initial-stack '())
+             (program '(3 0 /))
+             (result (flike-eval program initial-stack 10)))
+        (check-equal?
+          (assoc 'termination-type result)
+          '(termination-type exception)
+          "Termination type should be 'exception")))
+
+    (test-case
+      "Test that a program that generates a stack underflow error halts with 'exception' termination type"
+      (let* ((max-steps 4)
+             (initial-stack '())
+             (program '(3 +))
+             (result (flike-eval program initial-stack 10)))
+        (check-equal?
+          (assoc 'termination-type result)
+          '(termination-type exception)
+          "Termination type should be 'exception")))))
+
 
 (run-tests stack-manipulations 'verbose)
 (run-tests integer-math-operations 'verbose)
 (run-tests flow-control 'verbose)
 (run-tests boolean-tests 'verbose)
-(run-tests misc-tests 'verbose)
+(run-tests computation-state 'verbose)
