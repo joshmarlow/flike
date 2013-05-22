@@ -1,0 +1,14 @@
+TODO
+
+Change flike-eval to accept an entire computation and not just the primary segment
+Implement return stack (instead of simple next-instruction-idx)
+Implement program 'segements'
+    Main segment and subroutine segments
+Implement call and return statements
+
+ACCOMPLISHED
+Add additional program run meta information to the flike-eval return assoc list
+    Termination type - halt, time-exceeded, error (underflow, divide by zero, etc)
+    Next-instruction-idx
+Use additional meta data to implement the contract-pool function
+Implement full levin-search
