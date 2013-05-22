@@ -8,7 +8,7 @@ Purpose
 
 For fun.
 
-I'm intrigued by some of the work developed by JÜRGEN SCHMIDHUBER.
+I'm intrigued by some of the work developed by Jürgen Schmidhuber.
 
 In particular, I am interested in what is discussed here: http://www.idsia.ch/~juergen/newai/
 
